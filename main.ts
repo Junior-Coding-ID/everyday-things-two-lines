@@ -1,43 +1,35 @@
-// Everyday Things, Two Lines, Longer Run — entry writer (v2, fresh build).
-// Writes the two-line fridge explanation to entry.txt in the grader output directory.
-// The entry is exactly two lines: line 1 explains the fridge through one concrete
-// analogy a 10-year-old can picture, line 2 says what the analogy maps and what it
-// leaves out.
+// Everyday Things, Two Lines — v3
+// Writes the two-line toaster explanation to <MAKEFUN_OUTPUT>/entry.txt
+// (defaults to /output/entry.txt). Node APIs only.
+
 import { mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
+// Line 1 (172 chars): one vivid sentence, one metaphor only —
+// a toaster as a tiny sun in a box.
 const LINE_1 =
-  "A fridge chills food only by warming the kitchen, the way shoving every stray toy out of your bedroom clears the floor only by piling the mess in the hallway.";
+  "A toaster is a tiny sun that lives in a box on your kitchen counter, browning your bread the way the real sun browns your skin, only in two minutes and without the sunburn.";
+
+// Line 2 (199 chars): honest + specific about what the analogy
+// maps (glowing wires, heat changing bread) and what it leaves out
+// (a real sun is far away and free; a toaster needs electricity,
+// a plug, and a timer to stop).
 const LINE_2 =
-  "The toys stand for heat, the bedroom for the inside, and the hallway for the kitchen, leaving out the sealed pipes and the electric pump that adds extra heat while shoving makes no new toys.";
+  "The sun stands for the glowing wires inside, the browning for heat changing the bread, leaving out that a real sun is far away and free while a toaster needs electricity, a plug, and a timer to stop.";
 
-// Gate: entry must be UTF-8 text of 1 to 400 characters (RULES.txt).
-const GATE_MIN = 1;
-const GATE_MAX = 400;
-
-function buildEntry(): string {
-  const entry = LINE_1 + "\n" + LINE_2 + "\n";
-  const chars = [...entry].length;
-  if (chars < GATE_MIN || chars > GATE_MAX) {
-    throw new Error(
-      `entry is ${chars} characters, outside the ${GATE_MIN}-${GATE_MAX} gate`,
-    );
-  }
-  const bytes = Buffer.byteLength(entry, "utf8");
-  if (bytes !== 350) {
-    throw new Error(`entry is ${bytes} bytes, expected exactly 350`);
-  }
-  const lines = entry.replace(/\n$/, "").split("\n");
-  if (lines.length !== 2 || lines.some((l) => l.trim().length === 0)) {
-    throw new Error("entry must be exactly two non-empty lines");
-  }
-  return entry;
-}
+// The entry text: exactly two lines plus a trailing newline
+// (172 + 1 + 199 + 1 = 373 characters, inside the 1–400 gate).
+const ENTRY = `${LINE_1}\n${LINE_2}\n`;
 
 function main(): void {
+  // Self-check the sealed scorer's gate: 1–400 characters, not
+  // only whitespace. Fail loudly instead of writing an invalid entry.
+  if (ENTRY.length < 1 || ENTRY.length > 400 || ENTRY.trim().length === 0) {
+    throw new Error(`entry length ${ENTRY.length} is outside the 1-400 gate`);
+  }
   const outDir = process.env.MAKEFUN_OUTPUT ?? "/output";
   mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "entry.txt"), buildEntry(), "utf8");
+  writeFileSync(join(outDir, "entry.txt"), ENTRY, "utf8");
 }
 
 main();
