@@ -1,35 +1,34 @@
-// Everyday Things, Two Lines — v3
-// Writes the two-line toaster explanation to <MAKEFUN_OUTPUT>/entry.txt
-// (defaults to /output/entry.txt). Node APIs only.
+"use strict";
 
-import { mkdirSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+const fs = require("node:fs");
+const path = require("node:path");
 
-// Line 1 (172 chars): one vivid sentence, one metaphor only —
-// a toaster as a tiny sun in a box.
 const LINE_1 =
-  "A toaster is a tiny sun that lives in a box on your kitchen counter, browning your bread the way the real sun browns your skin, only in two minutes and without the sunburn.";
-
-// Line 2 (199 chars): honest + specific about what the analogy
-// maps (glowing wires, heat changing bread) and what it leaves out
-// (a real sun is far away and free; a toaster needs electricity,
-// a plug, and a timer to stop).
+  "A bike helmet protects your head by letting itself crush to stretch out the stop, the way pulling your hands back as you catch a water balloon keeps it from popping.";
 const LINE_2 =
-  "The sun stands for the glowing wires inside, the browning for heat changing the bread, leaving out that a real sun is far away and free while a toaster needs electricity, a plug, and a timer to stop.";
+  "Your moving hands stand for the inner foam and the balloon for your brain inside your skull, leaving out the hard outer shell that spreads sharp hits and how crushed foam stays flat after one crash while hands can catch again.";
 
-// The entry text: exactly two lines plus a trailing newline
-// (172 + 1 + 199 + 1 = 373 characters, inside the 1–400 gate).
-const ENTRY = `${LINE_1}\n${LINE_2}\n`;
+const ENTRY = LINE_1 + "\n" + LINE_2 + "\n";
 
-function main(): void {
-  // Self-check the sealed scorer's gate: 1–400 characters, not
-  // only whitespace. Fail loudly instead of writing an invalid entry.
-  if (ENTRY.length < 1 || ENTRY.length > 400 || ENTRY.trim().length === 0) {
-    throw new Error(`entry length ${ENTRY.length} is outside the 1-400 gate`);
+function validate(entry) {
+  const lines = entry.split("\n");
+  if (lines.length !== 3 || lines[2] !== "") {
+    throw new Error("entry must be exactly two lines");
   }
-  const outDir = process.env.MAKEFUN_OUTPUT ?? "/output";
-  mkdirSync(outDir, { recursive: true });
-  writeFileSync(join(outDir, "entry.txt"), ENTRY, "utf8");
+  if (lines[0].length === 0 || lines[1].length === 0) {
+    throw new Error("each line must be non-empty");
+  }
+  if (entry.length < 1 || entry.length > 400) {
+    throw new Error("entry must be 1-400 characters, got " + entry.length);
+  }
 }
 
-main();
+validate(ENTRY);
+
+const outDir =
+  process.env.MAKEFUN_OUTPUT_DIR ||
+  process.env.MAKEFUN_OUTPUT ||
+  "/output";
+
+fs.mkdirSync(outDir, { recursive: true });
+fs.writeFileSync(path.join(outDir, "entry.txt"), ENTRY, "utf8");
